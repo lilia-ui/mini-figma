@@ -15,6 +15,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mini-figma
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +27,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: mini-figma/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -37,7 +41,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: mini-figma/dist
 
   deploy:
     needs: build
