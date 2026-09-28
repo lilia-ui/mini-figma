@@ -76,6 +76,37 @@
         margin-bottom: 0;
       }
 
+      .actions {
+        margin-top: 32px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: 1px solid var(--color-accent);
+        border-radius: 12px;
+        background: var(--color-accent);
+        color: #ffffff;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          background-color 150ms ease,
+          border-color 150ms ease;
+      }
+
+      .button:hover {
+        border-color: #115e59;
+        background: #115e59;
+      }
+
+      .button:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 3px;
+      }
+
       @media (prefers-reduced-motion: no-preference) {
         main {
           animation: appear 450ms ease-out both;
@@ -107,6 +138,9 @@
         Моя цель — постепенно разобраться в основах, много практиковаться и
         создавать собственные проекты, которыми будет приятно делиться.
       </p>
+      <div class="actions">
+        <a class="button" href="mini-figma/">Открыть редактор фигур</a>
+      </div>
     </main>
   </body>
 </html>
