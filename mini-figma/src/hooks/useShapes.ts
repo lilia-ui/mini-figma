@@ -28,6 +28,7 @@ interface ShapesHistoryState {
 type ShapesHistoryAction =
   | { type: 'add'; shape: Shape }
   | { type: 'update'; id: string; changes: ShapeChanges }
+  | { type: 'nudge'; ids: string[]; delta: Point }
   | { type: 'select'; id: string; isMultiSelect: boolean }
   | { type: 'clear-selection' }
   | { type: 'preview-drag'; shapes: Shape[] }
@@ -125,6 +126,32 @@ function shapesHistoryReducer(
         state,
         state.present.map((shape) =>
           shape.id === action.id ? { ...shape, ...action.changes } : shape,
+        ),
+      )
+    }
+
+    case 'nudge': {
+      const { delta } = action
+
+      if (delta.x === 0 && delta.y === 0) {
+        return state
+      }
+
+      const ids = new Set(action.ids)
+      const hasChanges = state.present.some(
+        (shape) => ids.has(shape.id),
+      )
+
+      if (!hasChanges) {
+        return state
+      }
+
+      return commitShapes(
+        state,
+        state.present.map((shape) =>
+          ids.has(shape.id)
+            ? { ...shape, x: shape.x + delta.x, y: shape.y + delta.y }
+            : shape,
         ),
       )
     }
@@ -232,6 +259,19 @@ export function useShapes() {
   const selectShape = useCallback((id: string, isMultiSelect = false) => {
     dispatch({ type: 'select', id, isMultiSelect })
   }, [])
+
+  // Сдвиг с клавиатуры: если фигура выбрана, двигаем весь выделенный набор,
+  // иначе — только её. Так же ведёт себя перетаскивание мышью.
+  const nudgeShape = useCallback(
+    (id: string, delta: Point) => {
+      const ids = selectedShapeIds.includes(id)
+        ? selectedShapeIds
+        : [id]
+
+      dispatch({ type: 'nudge', ids, delta })
+    },
+    [selectedShapeIds],
+  )
 
   const clearSelection = useCallback(() => {
     dispatch({ type: 'clear-selection' })
@@ -415,6 +455,7 @@ export function useShapes() {
     updateShape,
     createShapeFromDrag,
     selectShape,
+    nudgeShape,
     clearSelection,
     startShapeDrag,
     moveShapeDrag,

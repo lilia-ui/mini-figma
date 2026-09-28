@@ -1,5 +1,15 @@
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { Point, Shape as ShapeData, Viewport } from '../types/shape'
+
+const NUDGE_STEP = 1
+const NUDGE_STEP_LARGE = 10
+
+const NUDGE_BY_KEY: Readonly<Record<string, Point>> = {
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+}
 
 interface ShapeProps {
   shape: ShapeData
@@ -9,6 +19,7 @@ interface ShapeProps {
   isPreview?: boolean
   isDragging?: boolean
   onSelect?: (id: string, isMultiSelect?: boolean) => void
+  onNudge?: (id: string, delta: Point) => void
   onDragStart?: (
     id: string,
     pointerId: number,
@@ -52,6 +63,7 @@ export function Shape({
   isPreview = false,
   isDragging = false,
   onSelect,
+  onNudge,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -124,11 +136,38 @@ export function Shape({
     }
   }
 
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (!isInteractive) {
+      return
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onSelect?.(shape.id, event.shiftKey)
+      return
+    }
+
+    const direction = NUDGE_BY_KEY[event.key]
+
+    if (!direction || !onNudge) {
+      return
+    }
+
+    event.preventDefault()
+
+    const step = event.shiftKey ? NUDGE_STEP_LARGE : NUDGE_STEP
+
+    onNudge(shape.id, { x: direction.x * step, y: direction.y * step })
+  }
+
   return (
     <div
-      role="img"
+      role="button"
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-pressed={isInteractive ? isSelected : undefined}
       aria-label={`${shape.name || shapeTypeLabel}: ${shapeTypeLabel}${isSelected ? ', выбрана' : ''}`}
-      className="absolute"
+      className="absolute outline-offset-2 focus-visible:outline-2 focus-visible:outline-[#0d9488]"
+      onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

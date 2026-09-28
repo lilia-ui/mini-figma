@@ -36,6 +36,7 @@ interface CanvasProps {
     viewport: Viewport,
   ) => void
   onSelectShape: (id: string, isMultiSelect?: boolean) => void
+  onNudgeShape: (id: string, delta: Point) => void
   onStartShapeDrag: (
     id: string,
     pointerId: number,
@@ -76,6 +77,7 @@ export function Canvas({
   onStopPanning,
   onCreateShape,
   onSelectShape,
+  onNudgeShape,
   onStartShapeDrag,
   onMoveShapeDrag,
   onEndShapeDrag,
@@ -331,6 +333,7 @@ export function Canvas({
             isSelectable={activeTool === 'select' && !isSpacePressed}
             isDragging={draggingShapeId === shape.id}
             onSelect={onSelectShape}
+            onNudge={onNudgeShape}
             onDragStart={(id, pointerId, clientPoint) =>
               onStartShapeDrag(
                 id,

@@ -29,6 +29,7 @@ function App() {
     createShapeFromDrag,
     updateShape,
     selectShape,
+    nudgeShape,
     clearSelection,
     startShapeDrag,
     moveShapeDrag,
@@ -74,6 +75,7 @@ function App() {
         onStopPanning={stopPanning}
         onCreateShape={createShapeFromDrag}
         onSelectShape={selectShape}
+        onNudgeShape={nudgeShape}
         onStartShapeDrag={startShapeDrag}
         onMoveShapeDrag={moveShapeDrag}
         onEndShapeDrag={endShapeDrag}
