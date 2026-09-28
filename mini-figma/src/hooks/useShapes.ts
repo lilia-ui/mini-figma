@@ -30,6 +30,7 @@ type ShapesHistoryAction =
   | { type: 'preview-update'; id: string; changes: ShapeChanges }
   | { type: 'commit-live'; snapshot: ShapesSnapshot }
   | { type: 'nudge'; ids: string[]; delta: Point }
+  | { type: 'remove'; ids: string[] }
   | { type: 'select'; id: string; isMultiSelect: boolean }
   | { type: 'clear-selection' }
   | { type: 'preview-drag'; shapes: Shape[] }
@@ -176,6 +177,24 @@ function shapesHistoryReducer(
       )
     }
 
+    case 'remove': {
+      const ids = new Set(action.ids)
+      const nextShapes = state.present.filter((shape) => !ids.has(shape.id))
+
+      if (nextShapes.length === state.present.length) {
+        return state
+      }
+
+      return {
+        past: [...state.past, createSnapshot(state)],
+        present: nextShapes,
+        future: [],
+        selectedShapeIds: state.selectedShapeIds.filter(
+          (selectedId) => !ids.has(selectedId),
+        ),
+      }
+    }
+
     case 'select': {
       if (!action.isMultiSelect) {
         if (
@@ -319,6 +338,10 @@ export function useShapes() {
 
   const clearSelection = useCallback(() => {
     dispatch({ type: 'clear-selection' })
+  }, [])
+
+  const removeShapes = useCallback((ids: string[]) => {
+    dispatch({ type: 'remove', ids })
   }, [])
 
   const startShapeDrag = useCallback(
@@ -504,6 +527,7 @@ export function useShapes() {
     createShapeFromDrag,
     selectShape,
     nudgeShape,
+    removeShapes,
     clearSelection,
     startShapeDrag,
     moveShapeDrag,

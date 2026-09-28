@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TOOL_SHORTCUTS } from './constants/tools'
 import { Canvas } from './components/Canvas'
 import { LayersPanel } from './components/LayersPanel'
@@ -32,6 +32,7 @@ function App() {
     endLiveEdit,
     selectShape,
     nudgeShape,
+    removeShapes,
     clearSelection,
     startShapeDrag,
     moveShapeDrag,
@@ -40,6 +41,12 @@ function App() {
     undo,
     redo,
   } = useShapes()
+  const removeSelectedShapes = useCallback(() => {
+    if (selectedShapeIds.length > 0) {
+      removeShapes(selectedShapeIds)
+    }
+  }, [removeShapes, selectedShapeIds])
+
   const hotkeyHandlers = useMemo(() => {
     const handlers: Record<string, () => void> = {}
 
@@ -51,8 +58,10 @@ function App() {
       ...handlers,
       'ctrl+z': undo,
       'ctrl+shift+z': redo,
+      delete: removeSelectedShapes,
+      backspace: removeSelectedShapes,
     }
-  }, [redo, undo])
+  }, [redo, removeSelectedShapes, undo])
 
   useHotkeys(hotkeyHandlers)
 
@@ -105,6 +114,7 @@ function App() {
             shapes={shapes}
             selectedShapeIds={selectedShapeIds}
             onSelectShape={selectShape}
+            onRemoveShape={removeShapes}
           />
         </div>
       </aside>

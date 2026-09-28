@@ -5,12 +5,14 @@ interface LayersPanelProps {
   shapes: Shape[]
   selectedShapeIds: string[]
   onSelectShape: (id: string, isMultiSelect?: boolean) => void
+  onRemoveShape: (ids: string[]) => void
 }
 
 export function LayersPanel({
   shapes,
   selectedShapeIds,
   onSelectShape,
+  onRemoveShape,
 }: LayersPanelProps) {
   const layers = [...shapes].reverse()
 
@@ -41,18 +43,21 @@ export function LayersPanel({
               const isSelected = selectedShapeIds.includes(shape.id)
 
               return (
-                <li key={shape.id}>
+                <li
+                  key={shape.id}
+                  className={`group flex items-center rounded-lg transition-colors duration-150 ${
+                    isSelected
+                      ? 'bg-[#0d9488]/10 text-[#0f766e]'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
+                >
                   <button
                     type="button"
                     aria-pressed={isSelected}
                     onClick={(event) =>
                       onSelectShape(shape.id, event.shiftKey)
                     }
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0d9488] ${
-                      isSelected
-                        ? 'bg-[#0d9488]/10 text-[#0f766e]'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+                    className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0d9488]"
                   >
                     <span
                       aria-hidden="true"
@@ -75,6 +80,29 @@ export function LayersPanel({
                     <span className="text-[10px] text-slate-400">
                       {tool?.shortcut}
                     </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-label={`Удалить слой «${shape.name}»`}
+                    title="Удалить слой"
+                    onClick={() => onRemoveShape([shape.id])}
+                    className="mr-1.5 grid size-7 shrink-0 place-items-center rounded-md text-slate-400 opacity-0 transition hover:bg-slate-200 hover:text-slate-700 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#0d9488] group-hover:opacity-100"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="size-4"
+                      fill="none"
+                    >
+                      <path
+                        d="M5 7h14M10 7V5h4v2M8 7l.7 12h6.6L16 7M11 11v5M13 11v5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </button>
                 </li>
               )
