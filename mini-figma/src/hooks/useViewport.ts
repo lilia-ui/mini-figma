@@ -5,7 +5,7 @@ import {
   MIN_ZOOM,
 } from '../constants/viewport'
 import type { Point, Viewport } from '../types/shape'
-import { isTypingTarget } from '../utils/dom'
+import { isSpaceActivationTarget } from '../utils/dom'
 import { zoomViewportAt } from '../utils/geometry'
 
 function clampZoom(zoom: number): number {
@@ -32,7 +32,10 @@ export function useViewport() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' || isTypingTarget(event.target)) {
+      if (
+        event.code !== 'Space' ||
+        isSpaceActivationTarget(event.target)
+      ) {
         return
       }
 
@@ -41,11 +44,15 @@ export function useViewport() {
     }
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code !== 'Space') {
+      // Пробел отпускают без preventDefault: иначе кнопка, на которую
+      // навели фокус с клавиатуры, не активируется нажатием пробела.
+      if (
+        event.code !== 'Space' ||
+        isSpaceActivationTarget(event.target)
+      ) {
         return
       }
 
-      event.preventDefault()
       setIsSpacePressed(false)
       stopPanning()
     }
