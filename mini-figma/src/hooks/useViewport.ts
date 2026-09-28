@@ -5,20 +5,11 @@ import {
   MIN_ZOOM,
 } from '../constants/viewport'
 import type { Point, Viewport } from '../types/shape'
+import { isTypingTarget } from '../utils/dom'
 import { zoomViewportAt } from '../utils/geometry'
 
 function clampZoom(zoom: number): number {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom))
-}
-
-function isTypingTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  const interactiveTags = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
-
-  return target.isContentEditable || interactiveTags.has(target.tagName)
 }
 
 export function useViewport() {

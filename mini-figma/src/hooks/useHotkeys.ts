@@ -1,16 +1,7 @@
 import { useEffect } from 'react'
+import { isTypingTarget } from '../utils/dom'
 
 type HotkeyHandlers = Readonly<Record<string, (() => void) | undefined>>
-
-function isTypingTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false
-  }
-
-  const interactiveTags = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
-
-  return target.isContentEditable || interactiveTags.has(target.tagName)
-}
 
 function getPrimaryKey(event: KeyboardEvent): string {
   const key = event.key.toLowerCase()
