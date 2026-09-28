@@ -1,9 +1,11 @@
+import { useEffect, useRef } from 'react'
 import { DEFAULT_SHAPE_FILL } from '../constants/shapes'
 import type { Shape } from '../types/shape'
 
 interface PropertiesPanelProps {
   shape: Shape | null
-  onFillChange?: (id: string, fill: string) => void
+  onFillPreview?: (id: string, fill: string) => void
+  onFillCommit?: () => void
 }
 
 interface CoordinateFieldProps {
@@ -27,9 +29,53 @@ function CoordinateField({ label, value, disabled }: CoordinateFieldProps) {
   )
 }
 
-export function PropertiesPanel({ shape, onFillChange }: PropertiesPanelProps) {
+export function PropertiesPanel({
+  shape,
+  onFillPreview,
+  onFillCommit,
+}: PropertiesPanelProps) {
   const isDisabled = shape === null
   const fill = shape?.fill ?? DEFAULT_SHAPE_FILL
+  const colorInputRef = useRef<HTMLInputElement>(null)
+  const shapeIdRef = useRef<string | undefined>(undefined)
+  const onFillPreviewRef = useRef(onFillPreview)
+  const onFillCommitRef = useRef(onFillCommit)
+
+  useEffect(() => {
+    shapeIdRef.current = shape?.id
+  }, [shape?.id])
+
+  useEffect(() => {
+    onFillPreviewRef.current = onFillPreview
+    onFillCommitRef.current = onFillCommit
+  })
+
+  // React нормализует onChange нативного input в событие input, которое
+  // системный диалог цвета шлёт на каждом шаге. Нативный change приходит
+  // один раз при закрытии диалога — по нему и фиксируется правка.
+  useEffect(() => {
+    const colorInput = colorInputRef.current
+
+    if (!colorInput) {
+      return
+    }
+
+    const handleCommit = (event: Event) => {
+      const shapeId = shapeIdRef.current
+
+      if (shapeId) {
+        onFillCommitRef.current?.()
+        onFillPreviewRef.current?.(
+          shapeId,
+          (event.target as HTMLInputElement).value,
+        )
+      }
+    }
+
+    colorInput.addEventListener('change', handleCommit)
+
+    return () => colorInput.removeEventListener('change', handleCommit)
+  }, [])
 
   return (
     <section
@@ -66,13 +112,14 @@ export function PropertiesPanel({ shape, onFillChange }: PropertiesPanelProps) {
           <div className="flex items-center gap-2">
             <input
               id="shape-fill"
+              ref={colorInputRef}
               type="color"
               aria-label="Цвет заливки выбранной фигуры"
               value={fill}
               disabled={isDisabled}
-              onChange={(event) => {
+              onInput={(event) => {
                 if (shape) {
-                  onFillChange?.(shape.id, event.target.value)
+                  onFillPreview?.(shape.id, event.currentTarget.value)
                 }
               }}
               className="size-5 cursor-pointer rounded border border-slate-300 bg-white p-0.5 shadow-sm disabled:cursor-not-allowed disabled:opacity-50"

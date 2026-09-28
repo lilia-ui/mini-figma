@@ -27,7 +27,9 @@ function App() {
     selectedShapeIds,
     draggingShapeId,
     createShapeFromDrag,
-    updateShape,
+    beginLiveEdit,
+    updateShapeLive,
+    endLiveEdit,
     selectShape,
     nudgeShape,
     clearSelection,
@@ -91,7 +93,11 @@ function App() {
         <div className="pointer-events-auto">
           <PropertiesPanel
             shape={selectedShape}
-            onFillChange={(id, fill) => updateShape(id, { fill })}
+            onFillPreview={(id, fill) => {
+              beginLiveEdit()
+              updateShapeLive(id, { fill })
+            }}
+            onFillCommit={endLiveEdit}
           />
         </div>
         <div className="pointer-events-auto flex min-h-0 flex-1">

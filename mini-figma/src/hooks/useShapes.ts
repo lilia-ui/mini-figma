@@ -27,7 +27,8 @@ interface ShapesHistoryState {
 
 type ShapesHistoryAction =
   | { type: 'add'; shape: Shape }
-  | { type: 'update'; id: string; changes: ShapeChanges }
+  | { type: 'preview-update'; id: string; changes: ShapeChanges }
+  | { type: 'commit-live'; snapshot: ShapesSnapshot }
   | { type: 'nudge'; ids: string[]; delta: Point }
   | { type: 'select'; id: string; isMultiSelect: boolean }
   | { type: 'clear-selection' }
@@ -104,30 +105,49 @@ function shapesHistoryReducer(
       return commitShapes(state, [...state.present, action.shape])
     }
 
-    case 'update': {
-      const currentShape = state.present.find((shape) => shape.id === action.id)
+    // Живое обновление без записи в историю: используется, пока
+    // пользователь тянет ползунок в системном диалоге выбора цвета.
+    case 'preview-update': {
+      const { id, changes } = action
 
-      if (!currentShape) {
+      if (!state.present.some((shape) => shape.id === id)) {
         return state
       }
 
-      const changeKeys = Object.keys(action.changes) as Array<
-        keyof ShapeChanges
-      >
-      const hasChanges = changeKeys.some(
-        (key) => currentShape[key] !== action.changes[key],
-      )
+      const changeKeys = Object.keys(changes) as Array<keyof ShapeChanges>
+      const hasChanges = state.present.some((shape) => {
+        if (shape.id !== id) {
+          return false
+        }
+
+        return changeKeys.some((key) => shape[key] !== changes[key])
+      })
 
       if (!hasChanges) {
         return state
       }
 
-      return commitShapes(
-        state,
-        state.present.map((shape) =>
-          shape.id === action.id ? { ...shape, ...action.changes } : shape,
+      return {
+        ...state,
+        present: state.present.map((shape) =>
+          shape.id === id ? { ...shape, ...changes } : shape,
         ),
-      )
+      }
+    }
+
+    // Одна запись в историю на всё живое взаимодействие вместо записи
+    // на каждый кадр перетаскивания.
+    case 'commit-live': {
+      if (action.snapshot.shapes === state.present) {
+        return state
+      }
+
+      return {
+        past: [...state.past, action.snapshot],
+        present: state.present,
+        future: [],
+        selectedShapeIds: state.selectedShapeIds,
+      }
     }
 
     case 'nudge': {
@@ -245,6 +265,7 @@ export function useShapes() {
   const [draggingShapeId, setDraggingShapeId] = useState<string | null>(null)
   const shapeNumberRef = useRef(0)
   const shapeDragRef = useRef<ShapeDragState | null>(null)
+  const liveEditRef = useRef<ShapesSnapshot | null>(null)
   const shapes = state.present
   const selectedShapeIds = state.selectedShapeIds
 
@@ -252,8 +273,31 @@ export function useShapes() {
     dispatch({ type: 'add', shape })
   }, [])
 
-  const updateShape = useCallback((id: string, changes: ShapeChanges) => {
-    dispatch({ type: 'update', id, changes })
+  // Живое редактирование: beginLiveEdit запоминает состояние до правки,
+  // updateShapeLive применяет изменения без истории, endLiveEdit записывает
+  // в историю ровно одну запись. Нужен для ползунка выбора цвета, который
+  // иначе забивает историю десятками кадров.
+  const beginLiveEdit = useCallback(() => {
+    if (!liveEditRef.current) {
+      liveEditRef.current = {
+        shapes: state.present,
+        selectedShapeIds: state.selectedShapeIds,
+      }
+    }
+  }, [state])
+
+  const updateShapeLive = useCallback((id: string, changes: ShapeChanges) => {
+    dispatch({ type: 'preview-update', id, changes })
+  }, [])
+
+  const endLiveEdit = useCallback(() => {
+    const snapshot = liveEditRef.current
+
+    liveEditRef.current = null
+
+    if (snapshot) {
+      dispatch({ type: 'commit-live', snapshot })
+    }
   }, [])
 
   const selectShape = useCallback((id: string, isMultiSelect = false) => {
@@ -437,13 +481,15 @@ export function useShapes() {
 
   const undo = useCallback(() => {
     cancelActiveDrag()
+    endLiveEdit()
     dispatch({ type: 'undo' })
-  }, [cancelActiveDrag])
+  }, [cancelActiveDrag, endLiveEdit])
 
   const redo = useCallback(() => {
     cancelActiveDrag()
+    endLiveEdit()
     dispatch({ type: 'redo' })
-  }, [cancelActiveDrag])
+  }, [cancelActiveDrag, endLiveEdit])
 
   return {
     shapes,
@@ -452,7 +498,9 @@ export function useShapes() {
     canUndo: state.past.length > 0,
     canRedo: state.future.length > 0,
     addShape,
-    updateShape,
+    beginLiveEdit,
+    updateShapeLive,
+    endLiveEdit,
     createShapeFromDrag,
     selectShape,
     nudgeShape,
