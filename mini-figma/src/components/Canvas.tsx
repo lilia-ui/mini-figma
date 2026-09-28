@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import type { RefObject, WheelEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { RefObject } from 'react'
 import {
   GRID_SIZE,
   WHEEL_ZOOM_SENSITIVITY,
@@ -87,6 +87,7 @@ export function Canvas({
   const [creationPreview, setCreationPreview] =
     useState<CreationPreview | null>(null)
   const creationRef = useRef<CreationState | null>(null)
+  const wheelHandlerRef = useRef<(event: WheelEvent) => void>(() => {})
 
   const getScreenPoint = (clientX: number, clientY: number): Point => {
     const bounds = containerRef.current?.getBoundingClientRect()
@@ -107,16 +108,38 @@ export function Canvas({
     setCreationPreview(null)
   }
 
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
+  const handleWheel = (event: WheelEvent) => {
     event.preventDefault()
 
     const screenPoint = getScreenPoint(event.clientX, event.clientY)
-    const zoomFactor = Math.exp(
-      -event.deltaY * WHEEL_ZOOM_SENSITIVITY,
-    )
+    const zoomFactor = Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY)
 
     onZoomBy(zoomFactor, screenPoint)
   }
+
+  // React регистрирует wheel на корневом контейнере как passive, поэтому
+  // preventDefault внутри onWheel не срабатывает. Слушаем событие напрямую.
+  useEffect(() => {
+    const container = containerRef.current
+
+    if (!container) {
+      return
+    }
+
+    const handleNativeWheel = (event: WheelEvent) => {
+      wheelHandlerRef.current(event)
+    }
+
+    container.addEventListener('wheel', handleNativeWheel, { passive: false })
+
+    return () => {
+      container.removeEventListener('wheel', handleNativeWheel)
+    }
+  }, [containerRef])
+
+  useEffect(() => {
+    wheelHandlerRef.current = handleWheel
+  })
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) {
@@ -251,7 +274,6 @@ export function Canvas({
       aria-label="Бесконечный холст"
       className="absolute inset-0 touch-none overflow-hidden bg-[#eef1f3] outline-none select-none focus-visible:ring-2 focus-visible:ring-[#0d9488]/35 focus-visible:ring-inset"
       style={{ cursor }}
-      onWheel={handleWheel}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
