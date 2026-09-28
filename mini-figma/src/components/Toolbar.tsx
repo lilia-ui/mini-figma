@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { TOOL_DEFINITIONS } from '../constants/tools'
 import type { Tool } from '../types/shape'
 
@@ -38,6 +40,50 @@ function ToolIcon({ tool }: { tool: Tool }) {
 }
 
 export function Toolbar({ activeTool, onToolChange }: ToolbarProps) {
+  // Roving tabindex: в tab-порядок попадает только активный инструмент,
+  // остальные достигаются стрелками, как требует паттерн role="toolbar".
+  const toolButtonRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  const focusToolAt = (index: number) => {
+    const total = TOOL_DEFINITIONS.length
+    const nextIndex = (index + total) % total
+
+    toolButtonRefs.current[nextIndex]?.focus()
+  }
+
+  const handleToolbarKeyDown = (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+  ) => {
+    const currentIndex = toolButtonRefs.current.findIndex(
+      (button) => button === document.activeElement,
+    )
+
+    if (currentIndex === -1) {
+      return
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        focusToolAt(currentIndex + 1)
+        break
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        focusToolAt(currentIndex - 1)
+        break
+      case 'Home':
+        focusToolAt(0)
+        break
+      case 'End':
+        focusToolAt(TOOL_DEFINITIONS.length - 1)
+        break
+      default:
+        return
+    }
+
+    event.preventDefault()
+  }
+
   return (
     <aside
       aria-label="Панель инструментов"
@@ -58,14 +104,19 @@ export function Toolbar({ activeTool, onToolChange }: ToolbarProps) {
         aria-orientation="vertical"
         aria-label="Инструменты"
         className="mt-2 flex flex-col gap-1.5"
+        onKeyDown={handleToolbarKeyDown}
       >
-        {TOOL_DEFINITIONS.map((tool) => {
+        {TOOL_DEFINITIONS.map((tool, toolIndex) => {
           const isActive = activeTool === tool.id
 
           return (
             <button
               key={tool.id}
+              ref={(button) => {
+                toolButtonRefs.current[toolIndex] = button
+              }}
               type="button"
+              tabIndex={isActive ? 0 : -1}
               title={`${tool.label} (${tool.shortcut})`}
               aria-label={`${tool.label}, клавиша ${tool.shortcut}`}
               aria-pressed={isActive}
