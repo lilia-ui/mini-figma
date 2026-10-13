@@ -26,6 +26,8 @@ function App() {
     shapes,
     selectedShapeIds,
     draggingShapeId,
+    canUndo,
+    canRedo,
     createShapeFromDrag,
     beginLiveEdit,
     updateShapeLive,
@@ -96,7 +98,14 @@ function App() {
         onClearSelection={clearSelection}
       />
 
-      <Toolbar activeTool={activeTool} onToolChange={setActiveTool} />
+      <Toolbar
+        activeTool={activeTool}
+        onToolChange={setActiveTool}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={undo}
+        onRedo={redo}
+      />
 
       <aside className="pointer-events-none absolute right-4 top-4 z-20 flex h-[calc(100dvh-2rem)] w-64 flex-col gap-3 max-lg:w-60">
         <div className="pointer-events-auto">
