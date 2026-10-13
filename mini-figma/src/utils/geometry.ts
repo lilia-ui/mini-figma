@@ -1,3 +1,4 @@
+import { MIN_SHAPE_SIZE } from '../constants/shapes'
 import type { Bounds, Point, Viewport } from '../types/shape'
 
 export function screenToCanvas(
@@ -52,7 +53,7 @@ export function getShapeBoundsFromDrag(
   startScreenPoint: Point,
   endScreenPoint: Point,
   viewport: Viewport,
-  minimumSize = 1,
+  minimumSize = MIN_SHAPE_SIZE,
 ): Bounds | null {
   const start = screenToCanvas(startScreenPoint, viewport)
   const end = screenToCanvas(endScreenPoint, viewport)

@@ -107,6 +107,11 @@ function App() {
               updateShapeLive(id, { fill })
             }}
             onFillCommit={endLiveEdit}
+            onGeometryPreview={(id, changes) => {
+              beginLiveEdit()
+              updateShapeLive(id, changes)
+            }}
+            onGeometryCommit={endLiveEdit}
           />
         </div>
         <div className="pointer-events-auto flex min-h-0 flex-1">
