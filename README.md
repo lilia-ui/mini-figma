@@ -27,7 +27,7 @@ npm install
 npm run dev
 ```
 
-Приложение откроется по адресу `http://localhost:5173/mini-figma/`. Подробности —
+Приложение откроется по адресу `http://localhost:5173/`. Подробности —
 в [`mini-figma/README.md`](mini-figma/README.md).
 
 ## Правила проекта
