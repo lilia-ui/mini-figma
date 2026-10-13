@@ -26,6 +26,7 @@
         --color-accent-600: #0d9488;
         --color-accent-700: #0f766e;
         --color-accent-800: #115e59;
+        --color-on-accent: #ffffff;
 
         --radius-card: 16px;
         --radius-button: 12px;
@@ -142,7 +143,7 @@
       .lead {
         max-width: 62ch;
         margin: 0;
-        font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
+        font-size: clamp(1.125rem, 2.2vw, 1.25rem);
         line-height: 1.55;
       }
 
@@ -166,11 +167,11 @@
         box-shadow: 0 24px 64px rgb(24 24 27 / 10%);
       }
 
+      /* Ширину, цвет и начертание лида задаёт .lead: правило не дублируется */
       .hero__lead {
         max-width: 52ch;
         margin-bottom: 32px;
         color: var(--color-text);
-        font-size: clamp(1.0625rem, 2.2vw, 1.25rem);
         font-weight: 600;
         line-height: 1.5;
       }
@@ -196,7 +197,7 @@
         border: 1px solid var(--color-accent-700);
         border-radius: var(--radius-button);
         background: var(--color-accent-700);
-        color: #ffffff;
+        color: var(--color-on-accent);
         font-size: 1rem;
         font-weight: 600;
         text-decoration: none;
@@ -268,14 +269,6 @@
         border: 1px solid var(--color-border);
         border-radius: var(--radius-card);
         background: var(--color-surface);
-        transition:
-          border-color 150ms ease,
-          box-shadow 150ms ease;
-      }
-
-      .card:hover {
-        border-color: color-mix(in srgb, var(--color-accent-600) 40%, var(--color-border));
-        box-shadow: 0 12px 32px rgb(24 24 27 / 8%);
       }
 
       .card__title,
@@ -291,7 +284,7 @@
         margin: 0 0 12px;
         color: var(--color-accent-700);
         font-family: var(--font-mono);
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 600;
         letter-spacing: 0.08em;
       }
@@ -346,7 +339,7 @@
         margin: 0 0 12px;
         color: var(--color-text);
         font-family: var(--font-mono);
-        font-size: 1.0625rem;
+        font-size: 1.125rem;
       }
 
       .stack__note {
@@ -464,9 +457,8 @@
       <section class="section hero" id="start" aria-labelledby="start-title">
         <div class="container">
           <div class="hero__card">
-            <p class="eyebrow">Начало пути</p>
             <h1 id="start-title">Лиля Самойленко</h1>
-            <p class="hero__lead">
+            <p class="lead hero__lead">
               Начинающий веб-разработчик. Первый законченный проект — редактор
               фигур, который работает в браузере.
             </p>
@@ -483,7 +475,7 @@
       <section class="section reveal" id="project" aria-labelledby="project-title">
         <div class="container">
           <header class="section__head">
-            <p class="eyebrow">Проект</p>
+            <p class="eyebrow">Что внутри</p>
             <h2 id="project-title">Mini Figma — редактор фигур прямо в браузере</h2>
             <p class="lead">
               Холст, который не заканчивается на краю экрана. Рисуешь
@@ -561,9 +553,9 @@
               <p class="feature__number">01</p>
               <h3 class="feature__title">Работает сразу в браузере</h3>
               <p>
-                Ничего не надо ставить и настраивать. Это удобно и мне для
-                проверки, и тому, кто смотрит проект: не нужен мой ноутбук и
-                установленный Node.js.
+                Ссылку можно открыть с телефона, с чужого ноутбука, из любой точки,
+                где есть браузер. Моя машина для этого не нужна: показать результат
+                важнее, чем рассказать о нём.
               </p>
             </li>
             <li class="feature">
@@ -591,7 +583,6 @@
       <section class="section reveal" id="stack" aria-labelledby="stack-title">
         <div class="container">
           <div class="stack">
-            <p class="eyebrow">Технологии</p>
             <h2 id="stack-title">Стек</h2>
             <p class="stack__line">React 19 · TypeScript · Vite 8 · Tailwind CSS 4</p>
             <p class="stack__note note">
@@ -610,24 +601,21 @@
       <section class="section reveal" id="about" aria-labelledby="about-title">
         <div class="container">
           <header class="section__head">
-            <p class="eyebrow">О человеке</p>
             <h2 id="about-title">Обо мне</h2>
           </header>
 
-          <div class="prose">
-            <p>
-              Я учусь веб-разработке. Сейчас разбираюсь с HTML, стилями и
-              JavaScript — и на этом проекте впервые собрала всё вместе: разметку,
-              логику состояния, историю действий, обработку мыши и клавиатуры.
-              React здесь не из учебника, а из задачи: фигур на холсте может быть
-              много, и их состояние надо где-то хранить.
-            </p>
-            <p>
-              Цель — не выучить список технологий, а научиться доводить маленькую
-              задачу до работающей вещи. Mini Figma — первая такая вещь: маленькая,
-              но настоящая, с отменой, слоями, зумом и точной панелью свойств.
-            </p>
-          </div>
+          <p>
+            Я учусь веб-разработке. Сейчас разбираюсь с HTML, стилями и
+            JavaScript — и на этом проекте впервые собрала всё вместе: разметку,
+            логику состояния, историю действий, обработку мыши и клавиатуры.
+            React здесь не из учебника, а из задачи: фигур на холсте может быть
+            много, и их состояние надо где-то хранить.
+          </p>
+          <p>
+            Цель — не выучить список технологий, а научиться доводить маленькую
+            задачу до работающей вещи. Mini Figma — первая такая вещь: маленькая,
+            но настоящая, с отменой, слоями, зумом и точной панелью свойств.
+          </p>
         </div>
       </section>
 
@@ -638,7 +626,6 @@
       >
         <div class="container container--narrow">
           <header class="section__head section__head--center">
-            <p class="eyebrow">Попробовать</p>
             <h2 id="final-title">Посмотреть самому</h2>
           </header>
 
