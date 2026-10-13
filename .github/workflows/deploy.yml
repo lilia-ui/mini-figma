@@ -41,7 +41,9 @@ jobs:
         run: npm run build
 
       - name: Add landing page
-        run: cp ../index.html dist/index.html
+        run: |
+          cp ../index.html dist/index.html
+          cp -r ../assets dist/assets
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

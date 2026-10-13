@@ -12,7 +12,7 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='18'%20fill='%230f172a'/%3E%3Crect%20x='15'%20y='15'%20width='15'%20height='15'%20rx='4'%20fill='%232dd4bf'/%3E%3Crect%20x='34'%20y='15'%20width='15'%20height='15'%20rx='4'%20fill='%235eead4'/%3E%3Crect%20x='15'%20y='34'%20width='15'%20height='15'%20rx='4'%20fill='%2314b8a6'/%3E%3Cpath%20d='M41.5%2032.5c5.8%200%2010.5%204.7%2010.5%2010.5%200%204-2.3%206.8-6%207.8v4.7h-5V50.8c-4-.7-6.5-3.6-6.5-7.8%200-5.8%202.7-10.5%207-10.5Z'%20fill='%23fb923c'/%3E%3C/svg%3E"
     />
-    <title>Лиля Самойленко — редактор фигур прямо в браузере</title>
+    <title>Лиля Самойленко — редактор фигур, который открывается в браузере</title>
     <style>
       :root {
         color-scheme: light;
@@ -311,6 +311,26 @@
         border-top: 2px solid var(--color-accent-600);
       }
 
+      /* Иллюстрация проекта */
+
+      .shot {
+        margin: 0 0 clamp(32px, 5vw, 48px);
+      }
+
+      .shot__image {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-card);
+        background: var(--color-surface);
+      }
+
+      .shot__caption {
+        max-width: 68ch;
+        margin-top: 12px;
+      }
+
       /* Стек */
 
       .stack {
@@ -471,6 +491,20 @@
               меняешь масштаб колесом мыши, двигаешь холст пробелом.
             </p>
           </header>
+
+          <figure class="shot">
+            <img
+              class="shot__image"
+              src="assets/mini-figma-editor.png"
+              width="1280"
+              height="720"
+              alt="Редактор фигур: на холсте прямоугольник и два эллипса, слева панель инструментов, справа — свойства выбранной фигуры и список слоёв"
+            />
+            <figcaption class="shot__caption note">
+              Это тот же редактор, что откроется по кнопке: фигура выбрана в
+              списке слоёв, её координаты и размер видны в панели свойств.
+            </figcaption>
+          </figure>
 
           <ul class="cards">
             <li class="card">
